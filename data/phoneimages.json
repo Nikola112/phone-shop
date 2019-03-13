@@ -1,0 +1,17 @@
+[
+    {
+        "id": 0,
+        "primary": 0,
+        "images":
+        [
+            {
+                "src": "samsung-galaxy-note-9.jpg",
+                "alt": "Samsung Galaxy Note 9"
+            },
+            {
+                "src": "samsung-galaxy-note-9-back.jpg",
+                "alt": "Samsung Galaxy Note 9 Back"
+            }
+        ]
+    }
+]

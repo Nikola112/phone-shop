@@ -1,0 +1,24 @@
+[
+    {
+        "id": 0,
+        "name": "Exynos 9810 Octa",
+        "technology": "10 nm",
+        "gpuId": 0,
+        "numberOfCores": 8,
+        "speedOfCores":
+        [
+            2.7, 2.7, 2.7, 2.7, 1.8, 1.8, 1.8, 1.8
+        ]
+    },
+    {
+        "id": 1,
+        "name": "Qualcomm SDM845 Snapdragon 845",
+        "technology": "10 nm",
+        "gpuId": 1,
+        "numberOfCores": 8,
+        "speedOfCores":
+        [
+            2.8, 2.8, 2.8, 2.8, 1.7, 1.7, 1.7, 1.7
+        ]
+    }
+]

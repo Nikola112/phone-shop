@@ -1,0 +1,31 @@
+[
+    {
+        "id": 0,
+        "name": "Galaxy Note 9",
+        "manufacturerId": 0,
+        "imagesId": 0,
+        "os": 
+        {
+            "osId": 0,
+            "version": "8.1 (Oreo)",
+            "info": "It is upgradable to Android 9.0 (Pie)"
+        },
+        "chipsets":
+        [
+            {
+                "cpuId": 0,
+                "info": "EMEA"
+            },
+            {
+                "cpuId": 1,
+                "info": "USA, LATAM and China"
+            }
+        ],
+        "price":
+        {
+            "old": 1049.99,
+            "new": 949.99,
+            "info": null
+        }
+    }
+]
