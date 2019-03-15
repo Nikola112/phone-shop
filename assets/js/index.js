@@ -11,92 +11,170 @@ $(function()
         $(this).text(event.strftime('%I:%M:%S'));
     });
 
-    function Phone(name, price, imageSourceName) 
-    {
-        this.name = name;
-        this.price = price;
-        this.imageSourceName = imageSourceName;
-        
-        this.toPhoneItem = function(imagesDir)
-        {
-            return `<div class="phone-item col-3">
-                        <div class="image-container">
-                            <img src="${imagesDir + this.imageSourceName}" alt="${this.name}" />
-                        </div>
-                        <div class="phone-info">
-                            <h3>${this.name}</h3>
-                            <div class="info">
-                                <div>Price</div>
-                                <div>${this.price}$</div>
-                            </div>
-                        </div>
-                        <div class="buy-button">
-                            BUY NOW
-                        </div>
-                    </div>`;
-        };
-    }
-    
-    function PhoneList(phones) 
-    {
-        this.phones = phones;
-    
-        this.getPhoneByName = function(name) 
-        {
-            for (let phone in phones) 
-            {
-                if (phone.name == name) 
-                {
-                    return phone;
-                }
-            }
-        }
-
-        this.atIndex = function(index) 
-        {
-            return phones[index];
-        }
-    }
-    
-    function phoneListToPhoneItems(imagesDir, phoneItems)
-        {
-            let s_phoneItems = "";
-
-            for(let i = 0; i < phoneItems.length; i++)
-            {
-                s_phoneItems += phoneItems[i].toPhoneItem(imagesDir);
-            }
-    
-            return s_phoneItems;
-        }
-    
-    let phones = [
-        new Phone("Huawei Mate 20 Pro", 899.99, "huawei-mate-20-pro.jpg"),
-        new Phone("Huawei Honor Play", 349.99, "huawei-honor-play.jpg"),
-        new Phone("IPhone X", 1024.99, "iphone-x.jpg"),
-        new Phone("IPhone XR", 849.99, "iphone-xr.jpg"),
-        new Phone("Samsung Galaxy A6", 249.99, "samsung-galaxy-a6.jpg"),
-        new Phone("Samsung Galaxy S9+", 949.99, "samsung-galaxy-s9-plus.jpg"),
-        new Phone("Sony Xperia L1", 229.99, "sony-xperia-l1.jpg"),
-        new Phone("Sony Xperia XA2", 329.99, "sony-xperia-xa-2.jpg"),
-        new Phone("Sony Xperia XZ2", 289.99, "sony-xperia-xz-2.jpg"),
-        new Phone("Nokia 7.1", 459.99, "nokia-7-1.jpg"),
-        new Phone("Nokia 8", 505.89, "nokia-8.jpg")
-    ];
-    
-    function renderPhoneItems(parent, ...items)
-    {
-        parent.innerHTML = phoneListToPhoneItems("assets/img/", items);
-    }
-
-    let phoneList = new PhoneList(phones);
-
-    let recomended = document.getElementById("recomended-items");
-    renderPhoneItems(recomended, phoneList.atIndex(0), phoneList.atIndex(10), phoneList.atIndex(8), phoneList.atIndex(3));
-
-    let featured = document.getElementById("featured-items");
-    renderPhoneItems(featured, phoneList.atIndex(4), phoneList.atIndex(6), phoneList.atIndex(7), phoneList.atIndex(2));
-
-    let newest = document.getElementById("newest-items");
-    renderPhoneItems(newest, phoneList.atIndex(5), phoneList.atIndex(0), phoneList.atIndex(8), phoneList.atIndex(9));
+    initialze();
 });
+
+// Extension method za niz
+Array.prototype.firstOrDefault = function(predicate)
+{
+    for(let i = 0; i < this.length; i++)
+    {
+        if(predicate(this[i]))
+        {
+            return this[i];
+        }
+    }
+
+    if(this.length > 0)
+    {
+        return this[0];
+    }
+
+    return null;
+}
+
+var phones = [];
+var manufacturers = [];
+var cpus = [];
+var gpus = [];
+var systems = [];
+var phoneimages = [];
+
+function Phone(phone, manufacturer, primaryImage)
+{
+    this.name = manufacturer.name + phone.name;
+    this.price = phone.price;
+    this.primaryImage = primaryImage;
+}
+
+var phoneToDisplay = [];
+
+function jsonAjax(path, callback)
+{
+    $.ajax({
+        url: path,
+        dataType: "json",
+        type: "GET",
+        success: callback
+    });
+}
+
+function initialze()
+{
+    loadData(onDataLoaded);
+    
+    function onDataLoaded()
+    {
+        loadPhones();
+        displayPhones();
+    }
+}
+
+function displayPhones()
+{
+    let phonesHtml = "";
+
+    for(phone of phoneToDisplay)
+    {
+        phonesHtml += displaySinglePhone(phone);
+    }
+
+    $("#recomended-items").html(phonesHtml);
+}
+
+function loadPhones()
+{
+    for(phone of phones)
+    {
+        let manufacturer = manufacturers.find(m => m.id == phone.manufacturerId);
+        let phoneImages = phoneimages.find(i => i.id == phone.imagesId);
+        let primaryImage = phoneImages.images[phoneImages.primary];
+
+        phoneToDisplay.push(new Phone(phone, manufacturer, primaryImage));
+    }
+
+    console.log(phoneToDisplay);
+}
+
+function displaySinglePhone(phone)
+{
+    return `<div class="phone-item col-3">
+                <div class="image-container">
+                    <img src="${"assets/img/" + phone.primaryImage.src}" alt="${phone.primaryImage.alt}" />
+                </div>
+                <div class="phone-info">
+                    <h3>${phone.name}</h3>
+                    <div class="info">
+                        <div>Price</div>
+                        <div>${phone.price.new}$</div>
+                        <div><strike>${phone.price.old}$</strike></div>
+                    </div>
+                </div>
+                <div class="buy-button">
+                    BUY NOW
+                </div>
+            </div>`;
+}
+
+function loadData(finishedCallback)
+{
+    var handler = new MultipleAjaxCompletedHandler(6, finishedCallback);
+
+    // load phones
+    jsonAjax("data/phones.json", function(data)
+    {
+        phones = data;
+        handler.ajaxFinished();
+    });
+
+    // load manufacturers
+    jsonAjax("data/manufacturers.json", function(data)
+    {
+        manufacturers = data;
+        handler.ajaxFinished();
+    });
+
+    // load cpus
+    jsonAjax("data/cpus.json", function(data)
+    {
+        cpus = data;
+        handler.ajaxFinished();
+    });
+
+    // load gpus
+    jsonAjax("data/gpus.json", function(data)
+    {
+        gpus = data;
+        handler.ajaxFinished();
+    });
+
+    // load systems
+    jsonAjax("data/systems.json", function(data)
+    {
+        systems = data;
+        handler.ajaxFinished();
+    });
+
+    // load phoneimages
+    jsonAjax("data/phoneimages.json", function(data)
+    {
+        phoneimages = data;
+        handler.ajaxFinished();
+    });
+}
+
+function MultipleAjaxCompletedHandler(number, onAllCompleted)
+{
+    this.ajaxCount = 0;
+    this.numberOfCallsRequired = number;
+
+    this.ajaxFinished = function()
+    {
+        this.ajaxCount += 1;
+
+        if(this.ajaxCount == this.numberOfCallsRequired)
+        {
+            onAllCompleted();
+        }
+    }
+}
